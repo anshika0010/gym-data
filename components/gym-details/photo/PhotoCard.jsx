@@ -70,7 +70,7 @@ export default function PhotoCard({
           </p>
         </div>
 
-        <span className="text-xs bg-gray-100 px-2 py-1 rounded-full">
+        <span className="text-xs bg-gray-100 px-2 py-1 text-gray-900 rounded-full">
           {categoryPhotos.length}/5
         </span>
       </div>
