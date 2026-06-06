@@ -3,7 +3,11 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
+
 import HeroSection from "@/components/HeroSection";
+import TaskStats from "@/components/TaskStats";
+import SplashScreen from "@/components/SplashScreen";
 
 import {
   Home,
@@ -12,15 +16,23 @@ import {
   Plus,
 } from "lucide-react";
 
-import Link from "next/link";
-
 export default function GroceryHomePage() {
   const router = useRouter();
 
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showSplash, setShowSplash] = useState(true);
 
-  // Auth Check + Load User
+  // Splash Screen (3 Seconds)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setShowSplash(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Auth Check
   useEffect(() => {
     const token = localStorage.getItem("token");
 
@@ -57,19 +69,20 @@ export default function GroceryHomePage() {
       console.log("Logout Error:", error.response?.data);
     }
 
-    // Clear local storage even if API fails
     localStorage.removeItem("token");
     localStorage.removeItem("user");
 
     router.replace("/sign-in");
   };
 
+  // Show Splash First
+  if (showSplash) {
+    return <SplashScreen />;
+  }
+
+  // Wait For Auth Check
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        Loading...
-      </div>
-    );
+    return null;
   }
 
   return (
@@ -80,24 +93,23 @@ export default function GroceryHomePage() {
         <div className="bg-black px-5 pt-4 pb-6 text-white rounded-b-[32px]">
           <div className="flex items-start justify-between">
             <div>
-              <p className="text-sm text-gray-100">
-                WELCOME
+              <p className="text-xs text-gray-100">
+                Hello
               </p>
 
-              <h2 className="text-2xl font-bold leading-tight">
+              <h2 className="text-lg font-semibold leading-tight">
                 {userData?.name || "User"}
               </h2>
-
-             
             </div>
-             <h1 className="text-2xl font-bold text-center mt-2 text-gray-100">Dashboard</h1>
+
+            <h1 className="text-xl mt-2 font-semibold text-center text-gray-100">
+              Dashboard
+            </h1>
           </div>
         </div>
 
-       
-
         {/* MAIN CONTENT */}
-        <div className="px-4 pt-2 pb-28">
+        <div className="px-4 pt-2 pb-24">
           <HeroSection />
 
           <Link href="/add-details">
@@ -105,10 +117,12 @@ export default function GroceryHomePage() {
               ADD GYM DETAILS
             </button>
           </Link>
+
+          <TaskStats />
         </div>
 
         {/* BOTTOM NAVBAR */}
-        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-sm px-4 pb-5">
+        <div className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-md px-4 pb-5">
           <div className="bg-[#f6f7f1] border border-[#b9d08e] rounded-[24px] py-3 px-6 flex items-center justify-between shadow-sm">
 
             {/* Home */}
@@ -129,7 +143,7 @@ export default function GroceryHomePage() {
             >
               <Plus size={22} />
               <span className="text-xs mt-1">
-                ADD
+                Add
               </span>
             </Link>
 
@@ -157,6 +171,7 @@ export default function GroceryHomePage() {
 
           </div>
         </div>
+
       </div>
     </div>
   );

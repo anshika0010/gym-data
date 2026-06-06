@@ -9,6 +9,37 @@ export default function StepOne({ form, setForm, onNext, onBack }) {
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
 
+  const states = [
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chhattisgarh",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal",
+];
+
   // ── Validators ──────────────────────────────────────────
   const validators = {
     gymName: (v) => {
@@ -140,10 +171,10 @@ export default function StepOne({ form, setForm, onNext, onBack }) {
 
   // ── Next ────────────────────────────────────────────────
   const handleNext = () => {
-    const allTouched = Object.keys(validators).reduce(
-      (acc, k) => ({ ...acc, [k]: true }),
-      { gps: true }
-    );
+const allTouched = Object.keys(validators).reduce(
+  (acc, k) => ({ ...acc, [k]: true }),
+  {}
+);
     setTouched(allTouched);
 
     const newErrors = Object.entries(validators).reduce((acc, [k, fn]) => {
@@ -151,10 +182,7 @@ export default function StepOne({ form, setForm, onNext, onBack }) {
       return acc;
     }, {});
 
-    if (!form.lat || !form.lng) {
-      newErrors.gps = "Please fetch GPS location";
-    }
-
+  
     setErrors(newErrors);
 
     const hasErrors = Object.values(newErrors).some((e) => e);
@@ -321,14 +349,20 @@ export default function StepOne({ form, setForm, onNext, onBack }) {
             <label className="block text-[11px] text-gray-900 font-bold mb-2 uppercase">
               State
             </label>
-            <input
-              type="text"
-              value={form.state}
-              onChange={update("state")}
-              onBlur={onBlur("state")}
-              placeholder="State"
-              className={inputClass("state")}
-            />
+           <select
+  value={form.state || ""}
+  onChange={update("state")}
+  onBlur={onBlur("state")}
+  className={inputClass("state")}
+>
+  <option value="">Select State</option>
+
+  {states.map((state) => (
+    <option key={state} value={state}>
+      {state}
+    </option>
+  ))}
+</select>
             <ErrorMsg field="state" />
           </div>
         </div>

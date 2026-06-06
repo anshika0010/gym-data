@@ -91,7 +91,10 @@ export default function SignInPage() {
         <Popup type={popup.type} message={popup.message} onClose={handlePopupClose} />
       )}
 
-      <main className="min-h-screen min-h-dvh bg-gray-100 flex flex-col items-center justify-center p-4">
+      <main className="min-h-screen min-h-dvh bg-gray-100 flex flex-col items-center justify-center p-4"  style={{
+    backgroundImage: "url('/img.jpeg')",
+    object: "cover",
+  }}>
         <div className="w-full max-w-[420px] bg-white rounded-[28px] overflow-hidden shadow-md border border-gray-200">
 
           {/* Header */}
