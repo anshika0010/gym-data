@@ -113,8 +113,14 @@ export default function GroceryHomePage() {
           <HeroSection />
 
           <Link href="/add-details">
-            <button className="w-full mt-5 bg-gray-900 text-white py-5 rounded-2xl font-semibold flex items-center justify-center gap-3 text-lg">
+            <button className="w-full mt-5 bg-gray-900 cursor-pointer text-white py-5 rounded-2xl font-semibold flex items-center justify-center gap-3 text-lg">
               ADD GYM DETAILS
+            </button>
+          </Link>
+
+           <Link href="/store-survey">
+            <button className="w-full mt-5 bg-gray-900 text-white py-5 cursor-pointer rounded-2xl font-semibold flex items-center justify-center gap-3 text-lg">
+              ADD SUPPLEMENT STORE
             </button>
           </Link>
 

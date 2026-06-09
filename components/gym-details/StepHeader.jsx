@@ -44,6 +44,9 @@ export default function StepHeader({
     "bg-gray-900",
     "bg-gray-900",
     "bg-gray-900",
+    "bg-gray-900",
+    "bg-gray-900",
+    "bg-gray-900",
   ];
 
   const bg = colors[step - 1] || "bg-gray-800";
@@ -130,7 +133,7 @@ export default function StepHeader({
 
         <div>
           <p className="text-white/70 text-xs">
-            Step {step} of 4
+            Step {step} of 7
           </p>
           <p className="text-white text-lg font-bold">
             {title}
@@ -140,7 +143,7 @@ export default function StepHeader({
 
       {/* Progress Bar */}
       <div className="flex gap-2">
-        {[1, 2, 3, 4].map((n) => (
+        {[1, 2, 3, 4, 5, 6, 7].map((n) => (
           <div
             key={n}
             className={`flex-1 h-1.5 rounded-full transition-all duration-300 ${

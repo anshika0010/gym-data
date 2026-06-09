@@ -574,12 +574,7 @@ export default function StepThree({ details, setDetails, onBack, onNext }) {
           />
         </div>
 
-        {/* Info */}
-        <div className="bg-blue-50 border border-blue-100 rounded-xl p-4">
-          <p className="text-xs text-blue-700">
-            ℹ️ All fields are optional. Adding more details improves gym listing quality.
-          </p>
-        </div>
+        
 
         {/* Button */}
         <button

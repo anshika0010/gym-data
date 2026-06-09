@@ -2,51 +2,117 @@
 
 import { useState } from "react";
 import StepHeader from "./StepHeader";
-import FormField from "./FormField";
 
+// ── Country config ────────────────────────────────────────────────────────────
+const COUNTRIES = [
+  {
+    code: "IN",
+    name: "India",
+    flag: "🇮🇳",
+    dialCode: "+91",
+    phonePlaceholder: "9876543210",
+    phoneMaxLength: 10,
+    phoneRegex: /^[6-9]\d{9}$/,
+    phoneError: "Enter a valid 10-digit Indian mobile number",
+    regions: [
+      "Andhra Pradesh",
+      "Arunachal Pradesh",
+      "Assam",
+      "Bihar",
+      "Chhattisgarh",
+      "Goa",
+      "Gujarat",
+      "Haryana",
+      "Himachal Pradesh",
+      "Jharkhand",
+      "Karnataka",
+      "Kerala",
+      "Madhya Pradesh",
+      "Maharashtra",
+      "Manipur",
+      "Meghalaya",
+      "Mizoram",
+      "Nagaland",
+      "Odisha",
+      "Punjab",
+      "Rajasthan",
+      "Sikkim",
+      "Tamil Nadu",
+      "Telangana",
+      "Tripura",
+      "Uttar Pradesh",
+      "Uttarakhand",
+      "West Bengal",
+    ],
+    regionLabel: "State",
+    pincodeLabel: "Pincode",
+    pincodeRegex: /^\d{6}$/,
+    pincodeError: "Enter valid 6-digit pincode",
+  },
+  {
+    code: "NP",
+    name: "Nepal",
+    flag: "🇳🇵",
+    dialCode: "+977",
+    phonePlaceholder: "9841234567",
+    phoneMaxLength: 10,
+    phoneRegex: /^9\d{9}$/,
+    phoneError: "Enter a valid 10-digit Nepal mobile number starting with 9",
+    regions: [
+      "Koshi Province",
+      "Madhesh Province",
+      "Bagmati Province",
+      "Gandaki Province",
+      "Lumbini Province",
+      "Karnali Province",
+      "Sudurpashchim Province",
+    ],
+    regionLabel: "Province",
+    pincodeLabel: "Postal Code",
+    pincodeRegex: /^\d{5}$/,
+    pincodeError: "Enter valid 5-digit postal code",
+  },
+  {
+    code: "AE",
+    name: "UAE",
+    flag: "🇦🇪",
+    dialCode: "+971",
+    phonePlaceholder: "0501234567",
+    phoneMaxLength: 10,
+    phoneRegex: /^0?5[0-9]\d{7}$/,
+    phoneError: "Enter a valid UAE mobile number (e.g. 0501234567)",
+    regions: [
+      "Abu Dhabi",
+      "Dubai",
+      "Sharjah",
+      "Ajman",
+      "Umm Al Quwain",
+      "Ras Al Khaimah",
+      "Fujairah",
+    ],
+    regionLabel: "Emirate",
+    pincodeLabel: "P.O. Box / Postal Code",
+    pincodeRegex: /^\d{5,6}$/,
+    pincodeError: "Enter valid postal code",
+  },
+];
+
+// ── Component ─────────────────────────────────────────────────────────────────
 export default function StepOne({ form, setForm, onNext, onBack }) {
   const [gpsStatus, setGpsStatus] = useState(null);
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
 
-  const states = [
-  "Andhra Pradesh",
-  "Arunachal Pradesh",
-  "Assam",
-  "Bihar",
-  "Chhattisgarh",
-  "Goa",
-  "Gujarat",
-  "Haryana",
-  "Himachal Pradesh",
-  "Jharkhand",
-  "Karnataka",
-  "Kerala",
-  "Madhya Pradesh",
-  "Maharashtra",
-  "Manipur",
-  "Meghalaya",
-  "Mizoram",
-  "Nagaland",
-  "Odisha",
-  "Punjab",
-  "Rajasthan",
-  "Sikkim",
-  "Tamil Nadu",
-  "Telangana",
-  "Tripura",
-  "Uttar Pradesh",
-  "Uttarakhand",
-  "West Bengal",
-];
+  // Resolve active country config
+  const activeCountry =
+    COUNTRIES.find((c) => c.code === form.countryCode) || COUNTRIES[0];
 
   // ── Validators ──────────────────────────────────────────
-  const validators = {
-    gymName: (v) => {
-      if (!v?.trim()) return "Gym name is required";
-      return "";
-      // Gym name allows letters + numbers both ✅
-    },
+  const getValidators = (country) => ({
+    countryCode: (v) => (!v ? "Please select a country" : ""),
+
+    gymName: (v) => (!v?.trim() ? "Gym name is required" : ""),
+    monthlyMembershipFees: (v) => (!v ? "Monthly membership fees is required" : ""),
 
     ownerManagerName: (v) => {
       if (!v?.trim()) return "Owner / Manager name is required";
@@ -57,35 +123,62 @@ export default function StepOne({ form, setForm, onNext, onBack }) {
 
     phoneNumber: (v) => {
       if (!v?.trim()) return "Phone number is required";
-      if (!/^[6-9]\d{9}$/.test(v.replace(/\s/g, "")))
-        return "Enter a valid 10-digit phone number";
+      const cleaned = v.replace(/\s/g, "");
+      if (!country.phoneRegex.test(cleaned)) return country.phoneError;
+      return "";
+    },
+
+    whatsappNumber: (v) => {
+      if (!v?.trim()) return ""; // optional field
+      const cleaned = v.replace(/\s/g, "");
+      if (!country.phoneRegex.test(cleaned))
+        return `Enter a valid WhatsApp number (${country.dialCode})`;
       return "";
     },
 
     address: (v) => (!v?.trim() ? "Address is required" : ""),
 
     pincode: (v) => {
-      if (!v?.trim()) return "Pincode is required";
-      if (!/^\d{6}$/.test(v.trim())) return "Enter valid 6-digit pincode";
+      if (!v?.trim()) return `${country.pincodeLabel} is required`;
+      if (!country.pincodeRegex.test(v.trim())) return country.pincodeError;
       return "";
     },
 
     city: (v) => (!v?.trim() ? "City is required" : ""),
 
-    state: (v) => (!v?.trim() ? "State is required" : ""),
-  };
+    state: (v) => (!v?.trim() ? `${country.regionLabel} is required` : ""),
+  });
 
   // ── On change ───────────────────────────────────────────
   const update = (field) => (e) => {
     let value = e.target.value;
 
-    // Owner name: block numbers from being typed
     if (field === "ownerManagerName") {
       value = value.replace(/[^a-zA-Z\s]/g, "");
     }
 
+    // When country changes, reset location-related fields
+    if (field === "countryCode") {
+      setForm((prev) => ({
+        ...prev,
+        countryCode: value,
+        phoneNumber: "",
+        whatsappNumber: "",
+        pincode: "",
+        state: "",
+        city: "",
+        address: "",
+        lat: "",
+        lng: "",
+      }));
+      setErrors({});
+      setTouched({});
+      return;
+    }
+
     setForm((prev) => ({ ...prev, [field]: value }));
     setTouched((prev) => ({ ...prev, [field]: true }));
+    const validators = getValidators(activeCountry);
     if (validators[field]) {
       setErrors((prev) => ({ ...prev, [field]: validators[field](value) }));
     }
@@ -94,6 +187,7 @@ export default function StepOne({ form, setForm, onNext, onBack }) {
   // ── On blur ─────────────────────────────────────────────
   const onBlur = (field) => () => {
     setTouched((prev) => ({ ...prev, [field]: true }));
+    const validators = getValidators(activeCountry);
     if (validators[field]) {
       setErrors((prev) => ({
         ...prev,
@@ -136,6 +230,7 @@ export default function StepOne({ form, setForm, onNext, onBack }) {
 
           setForm((prev) => ({ ...prev, ...newValues }));
 
+          const validators = getValidators(activeCountry);
           setErrors((prev) => ({
             ...prev,
             address: validators.address(newValues.address),
@@ -171,21 +266,25 @@ export default function StepOne({ form, setForm, onNext, onBack }) {
 
   // ── Next ────────────────────────────────────────────────
   const handleNext = () => {
-const allTouched = Object.keys(validators).reduce(
-  (acc, k) => ({ ...acc, [k]: true }),
-  {}
-);
+    const validators = getValidators(activeCountry);
+    // whatsappNumber is optional — exclude from required check
+    const requiredFields = Object.keys(validators).filter(
+      (k) => k !== "whatsappNumber"
+    );
+
+    const allTouched = Object.keys(validators).reduce(
+      (acc, k) => ({ ...acc, [k]: true }),
+      {}
+    );
     setTouched(allTouched);
 
     const newErrors = Object.entries(validators).reduce((acc, [k, fn]) => {
       acc[k] = fn(form[k]);
       return acc;
     }, {});
-
-  
     setErrors(newErrors);
 
-    const hasErrors = Object.values(newErrors).some((e) => e);
+    const hasErrors = requiredFields.some((k) => newErrors[k]);
     if (!hasErrors) onNext();
   };
 
@@ -210,7 +309,27 @@ const allTouched = Object.keys(validators).reduce(
 
       <div className="flex-1 px-5 pt-6 pb-8 overflow-y-auto">
 
-        {/* Gym Name — letters + numbers allowed */}
+        {/* ── Country Selector ── */}
+        <div className="mb-4">
+          <label className="block text-[11px] font-bold text-gray-900 mb-2 tracking-widest uppercase">
+            Country
+          </label>
+          <select
+            value={form.countryCode || "IN"}
+            onChange={update("countryCode")}
+            onBlur={onBlur("countryCode")}
+            className={inputClass("countryCode")}
+          >
+            {COUNTRIES.map((c) => (
+              <option key={c.code} value={c.code}>
+                {c.flag} {c.name} ({c.dialCode})
+              </option>
+            ))}
+          </select>
+          <ErrorMsg field="countryCode" />
+        </div>
+
+        {/* ── Gym Name ── */}
         <div className="mb-4">
           <label className="block text-[11px] font-bold text-gray-900 mb-2 tracking-widest uppercase">
             Gym Name
@@ -226,7 +345,27 @@ const allTouched = Object.keys(validators).reduce(
           <ErrorMsg field="gymName" />
         </div>
 
-        {/* Owner — only letters allowed, numbers blocked on type */}
+        {/* ── Monthly Membership Fees ── */}
+<div className="mb-4">
+  <label className="block text-[11px] font-bold text-gray-900 mb-2 tracking-widest uppercase">
+    Monthly Membership Fees (₹)
+  </label>
+
+  <input
+    type="number"
+    placeholder="e.g. 1500"
+    value={form.monthlyMembershipFees || ""}
+    onChange={update("monthlyMembershipFees")}
+    onBlur={onBlur("monthlyMembershipFees")}
+    min="0"
+    className={inputClass("monthlyMembershipFees")}
+  />
+
+  <ErrorMsg field="monthlyMembershipFees" />
+</div>
+
+
+        {/* ── Owner / Manager ── */}
         <div className="mb-4">
           <label className="block text-[11px] font-bold text-gray-900 mb-2 tracking-widest uppercase">
             Owner / Manager
@@ -242,24 +381,65 @@ const allTouched = Object.keys(validators).reduce(
           <ErrorMsg field="ownerManagerName" />
         </div>
 
-        {/* Phone */}
-        <div className="mb-4">
+        {/* ── Phone Number ── */}
+        <div className="mb-1">
           <label className="block text-[11px] font-bold text-gray-900 mb-2 tracking-widest uppercase">
             Phone Number
           </label>
-          <input
-            type="tel"
-            placeholder="9876543210"
-            value={form.phoneNumber}
-            onChange={update("phoneNumber")}
-            onBlur={onBlur("phoneNumber")}
-            maxLength={10}
-            className={inputClass("phoneNumber")}
-          />
+          <div className="flex gap-2">
+            {/* Dial code badge */}
+            <div className="flex items-center justify-center h-12 px-3 border-2 border-gray-600 rounded-xl bg-gray-100 text-gray-700 text-sm font-semibold whitespace-nowrap select-none">
+              {activeCountry.flag} {activeCountry.dialCode}
+            </div>
+            <input
+              type="tel"
+              placeholder={activeCountry.phonePlaceholder}
+              value={form.phoneNumber}
+              onChange={update("phoneNumber")}
+              onBlur={onBlur("phoneNumber")}
+              maxLength={activeCountry.phoneMaxLength}
+              className={`flex-1 border-2 text-gray-900 rounded-xl px-3 h-12 bg-gray-50 outline-none transition-colors ${
+                touched.phoneNumber && errors.phoneNumber
+                  ? "border-red-500 bg-red-50"
+                  : touched.phoneNumber && !errors.phoneNumber
+                  ? "border-green-500"
+                  : "border-gray-600"
+              }`}
+            />
+          </div>
           <ErrorMsg field="phoneNumber" />
         </div>
 
-        {/* Address */}
+        {/* ── WhatsApp Number ── */}
+        <div className="mb-4 mt-3">
+          <label className="block text-[11px] font-bold text-gray-900 mb-2 tracking-widest uppercase">
+            WhatsApp Number{" "}
+           
+          </label>
+          <div className="flex gap-2">
+            <div className="flex items-center justify-center h-12 px-3 border-2 border-gray-600 rounded-xl bg-gray-100 text-gray-700 text-sm font-semibold whitespace-nowrap select-none">
+              💬 {activeCountry.dialCode}
+            </div>
+            <input
+              type="tel"
+              placeholder={activeCountry.phonePlaceholder}
+              value={form.whatsappNumber || ""}
+              onChange={update("whatsappNumber")}
+              onBlur={onBlur("whatsappNumber")}
+              maxLength={activeCountry.phoneMaxLength}
+              className={`flex-1 border-2 text-gray-900 rounded-xl px-3 h-12 bg-gray-50 outline-none transition-colors ${
+                touched.whatsappNumber && errors.whatsappNumber
+                  ? "border-red-500 bg-red-50"
+                  : touched.whatsappNumber && !errors.whatsappNumber && form.whatsappNumber
+                  ? "border-green-500"
+                  : "border-gray-600"
+              }`}
+            />
+          </div>
+          <ErrorMsg field="whatsappNumber" />
+        </div>
+
+        {/* ── Gym Address ── */}
         <div className="mb-4">
           <label className="block text-[11px] font-bold text-gray-900 mb-2 tracking-widest uppercase">
             Gym Address
@@ -278,14 +458,14 @@ const allTouched = Object.keys(validators).reduce(
               value={form.address}
               onChange={update("address")}
               onBlur={onBlur("address")}
-              placeholder="Street, area, city, state, pincode"
+              placeholder="Street, area, city"
               className="w-full bg-transparent outline-none text-gray-900 resize-none text-sm"
             />
           </div>
           <ErrorMsg field="address" />
         </div>
 
-        {/* GPS Button */}
+        {/* ── GPS Button ── */}
         <button
           type="button"
           onClick={fetchGPS}
@@ -314,11 +494,11 @@ const allTouched = Object.keys(validators).reduce(
           </div>
         )}
 
-        {/* Pincode + City + State */}
+        {/* ── Pincode + City + State/Province/Emirate ── */}
         <div className="grid grid-cols-2 gap-3 mb-6 mt-3">
           <div>
             <label className="block text-[11px] text-gray-900 font-bold mb-2 uppercase">
-              Pincode
+              {activeCountry.pincodeLabel}
             </label>
             <input
               type="text"
@@ -347,27 +527,26 @@ const allTouched = Object.keys(validators).reduce(
 
           <div className="col-span-2">
             <label className="block text-[11px] text-gray-900 font-bold mb-2 uppercase">
-              State
+              {activeCountry.regionLabel}
             </label>
-           <select
-  value={form.state || ""}
-  onChange={update("state")}
-  onBlur={onBlur("state")}
-  className={inputClass("state")}
->
-  <option value="">Select State</option>
-
-  {states.map((state) => (
-    <option key={state} value={state}>
-      {state}
-    </option>
-  ))}
-</select>
+            <select
+              value={form.state || ""}
+              onChange={update("state")}
+              onBlur={onBlur("state")}
+              className={inputClass("state")}
+            >
+              <option value="">Select {activeCountry.regionLabel}</option>
+              {activeCountry.regions.map((region) => (
+                <option key={region} value={region}>
+                  {region}
+                </option>
+              ))}
+            </select>
             <ErrorMsg field="state" />
           </div>
         </div>
 
-        {/* Next + Back Buttons */}
+        {/* ── Next + Back ── */}
         <div className="flex flex-col gap-3">
           <button
             type="button"
